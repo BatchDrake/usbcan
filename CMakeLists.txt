@@ -9,3 +9,5 @@ add_executable(
 
 target_include_directories(usbcanbr PUBLIC include ${SIGUTILS_INCLUDE_DIRS})
 
+install(TARGETS usbcanbr DESTINATION bin)
+
