@@ -2,10 +2,10 @@
 
 **usbcan** lets you sniff and inject CAN packets by means of an appropriately configured BluePill+ STM32F103 board and a MCP2515 transceiver. **This is a Linux-only project.**
 
-This project features the following command line tools:
+This project features the following command line tools and modules:
 
 * `usbcanbr`: Linux virtual bridge that forwards frames from a virtual CAN network interface and the BluePill board via USB.
-
+* `usbcan_stm32.ino`: Arduino code for the BluePill+ board.
 
 ## Building and installing
 This is your good old typical CMake project. Just clone from this branch and run in the source folder:
