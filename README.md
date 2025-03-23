@@ -7,6 +7,14 @@ This project features the following command line tools and modules:
 * `usbcanbr`: Linux virtual bridge that forwards frames from a virtual CAN network interface and the BluePill board via USB.
 * `usbcan_stm32.ino`: Arduino code for the BluePill+ board.
 
+## Uploading the Arduino code to the BluePill+
+* Install [Arduino IDE 2.2.1](https://www.arduino.cc/en/software/) or later.
+* Install STM32F103 dependencies [following this tutorial](https://www.instructables.com/How-to-Program-STM32F103C8T6-With-ArduinoIDE/). **Please note:** the "Other Board URL" provided by the tutorial is deprectated, use `https://github.com/stm32duino/BoardManagerFiles/raw/main/package_stmicroelectronics_index.json` instead.
+* Install the `AA_MCP2515` Arduino library.
+* In the board part number, make sure you selected `BluePill F103C8`.
+* Copy and paste [this code](stm32f103/arduino/usbcan_stm32.ino) in Arduino IDE.
+* Enter BluePill+ in boot mode and upload it. Reset the board and you are ready to go!
+
 ## Building and installing
 This is your good old typical CMake project. Just clone from this branch and run in the source folder:
 
