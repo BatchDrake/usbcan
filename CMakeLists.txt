@@ -8,6 +8,7 @@ add_executable(
   include/usb_can.h)
 
 target_include_directories(usbcanbr PUBLIC include ${SIGUTILS_INCLUDE_DIRS})
+target_link_libraries(usbcanbr m)
 
 install(TARGETS usbcanbr DESTINATION bin)
 

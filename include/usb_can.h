@@ -25,7 +25,8 @@
 #include <sys/time.h>
 #include <unistd.h>
 
-#define USB_CAN_SERIAL_SPEED B1000000
+#define USB_CAN_SERIAL_SPEED     B1000000
+#define USB_CAN_BUS_MAX_SPEED      125000
 
 #define USB_CAN_FRAME_WAIT_SYNC  0x55415541
 #define USB_CAN_FRAME_DATA_SYNC  0xf00fbeeb
@@ -76,6 +77,7 @@ struct usb_can_ctx {
   uint32_t          last_tx_data_seq;
   
   struct timeval    last_statistics;
+  struct timeval    next_tx;
 
   enum usb_can_frame_search_state state;
   union {

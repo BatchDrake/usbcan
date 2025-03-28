@@ -17,6 +17,8 @@
 
 */
 
+#define _DEFAULT_SOURCE
+
 #include <stdio.h>
 #include <usb_can.h>
 #include <termios.h>
@@ -26,6 +28,8 @@
 #include <errno.h>
 #include <poll.h>
 #include <stdlib.h>
+#include <math.h>
+#include <sys/time.h>
 
 #include <linux/can.h>
 #include <linux/can/raw.h>
@@ -223,10 +227,10 @@ usb_can_ctx_show_statistics(usb_can_ctx_t *self)
   if (self->on_statistics != NULL) {
     struct timeval tv, diff;
 
-    timersub(&tv, &self->last_statistics, &diff);
     gettimeofday(&tv, NULL);
-
-    if (diff.tv_sec > 0) {
+    timersub(&tv, &self->last_statistics, &diff);
+    
+    if (true || diff.tv_sec > 0 || diff.tv_usec > 100000) {
       (self->on_statistics) (
           self->can2usb,
           self->can2usb_bytes,
@@ -289,6 +293,43 @@ usb_can_ctx_consume_usb(usb_can_ctx_t *self)
   return got >= 0 || errno == EAGAIN;
 }
 
+static void
+usb_can_ctx_update_next_tx(usb_can_ctx_t *self, size_t payload_len)
+{
+  struct timeval tv;
+  size_t frame_bits = 21 + payload_len * 8 + 16 + 2 + 7 + 3;
+  double frame_t    = frame_bits / (double) USB_CAN_BUS_MAX_SPEED;
+
+  struct timeval diff = {
+    .tv_sec = (unsigned) floor(frame_t),
+    .tv_usec = (unsigned) ceil(fmod(frame_t / 1e-6, 1e6))
+  };
+
+  gettimeofday(&tv, NULL);
+  timeradd(&tv, &diff, &self->next_tx);
+}
+
+static void
+usb_can_ctx_wait_next_tx(const usb_can_ctx_t *self)
+{
+  struct timeval tv;
+
+  gettimeofday(&tv, NULL);
+
+  while (timercmp(&tv, &self->next_tx, <)) {
+    struct timeval diff;
+    timersub(&self->next_tx, &tv, &diff);
+    
+    if (tv.tv_sec > 0) {
+      sleep(diff.tv_sec);
+    } else if (diff.tv_usec > 0) {
+      while (timercmp(&tv, &self->next_tx, <))
+        gettimeofday(&tv, NULL);
+    }
+    gettimeofday(&tv, NULL);
+  }
+}
+
 bool
 usb_can_ctx_consume_vcan(usb_can_ctx_t *self)
 {
@@ -315,12 +356,14 @@ usb_can_ctx_consume_vcan(usb_can_ctx_t *self)
 
       frame_len = USB_CAN_PARTIAL_FRAME_SIZE + usb_frame.info.dlc;
 
-      for (i = 0; i < frame_len; ++i) {
+      usb_can_ctx_wait_next_tx(self);
+      for (i = 0; i < frame_len; ++i)
         if (write(self->usbcan_fd, as_bytes + i, 1) < 1)
           fprintf(stderr, "[%9d] USB WRITE ERROR: %s\n", self->last_tx_data_seq, strerror(errno));
-
-         tcflush(self->usbcan_fd, TCIOFLUSH);
-      }
+      
+      tcflush(self->usbcan_fd, TCIOFLUSH);
+      usb_can_ctx_update_next_tx(self, linux_frame.len);
+      usb_can_ctx_show_statistics(self);
 
       ++self->can2usb;
       self->can2usb_bytes += frame_len;
