@@ -354,6 +354,8 @@ usb_can_ctx_consume_vcan(usb_can_ctx_t *self)
       usb_frame.info.dlc = linux_frame.len;
       usb_frame.info.id  = linux_frame.can_id;
 
+      memcpy(usb_frame.data, linux_frame.data, linux_frame.len);
+      
       frame_len = USB_CAN_PARTIAL_FRAME_SIZE + usb_frame.info.dlc;
 
       usb_can_ctx_wait_next_tx(self);

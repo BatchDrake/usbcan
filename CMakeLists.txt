@@ -10,5 +10,9 @@ add_executable(
 target_include_directories(usbcanbr PUBLIC include ${SIGUTILS_INCLUDE_DIRS})
 target_link_libraries(usbcanbr m)
 
+add_executable(
+  canhello
+  src/canhello.c)
+
 install(TARGETS usbcanbr DESTINATION bin)
 
