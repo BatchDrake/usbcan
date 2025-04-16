@@ -170,14 +170,14 @@ class CANAnalyzer:
       for i in range(len(offsets) - 1, -1, -1):
         if offsets[i] < 0 or offsets[i] >= length:
           raise RuntimeError(fr'Offset `{offsets[i]} at index {i} is out of bounds for {length}-sized frames')
-        field += arr[:, offsets[i]] << (i * 8)
+        field += arr[:, offsets[i]] * (1 << i * 8)
         
-        if ax is None:
-          plt.figure(figsize=(14, 4.5))
-          ax = plt.gca()
-        ax.plot(ts - ts[0], field)
-        ax.scatter(ts - ts[0], field, 4)
-        ax.set_ylabel('Value')
+      if ax is None:
+        plt.figure(figsize=(14, 4.5))
+        ax = plt.gca()
+      ax.plot(ts - ts[0], field)
+      ax.scatter(ts - ts[0], field, 4)
+      ax.set_ylabel('Value')
     
     ax.set_xlim([0, ts[-1] - ts[0]])
     ax.set_xlabel('Time since start [s]')
