@@ -26,7 +26,7 @@
 #include <unistd.h>
 
 #define USB_CAN_SERIAL_SPEED     B1000000
-#define USB_CAN_BUS_MAX_SPEED      125000
+#define USB_CAN_BUS_MAX_SPEED       75000
 
 #define USB_CAN_FRAME_WAIT_SYNC  0x55415541
 #define USB_CAN_FRAME_DATA_SYNC  0xf00fbeeb
